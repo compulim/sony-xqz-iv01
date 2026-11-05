@@ -177,9 +177,13 @@ Other Android vendors may show a desktop mode or need a MediaProjection fallback
    `0e49` UAC device, select it as the preferred input, and use `UNPROCESSED`.
 6. On teardown send `stop` and expect `disp_off` plus display removal.
 
-`tools/xqz_probe.py` implements the control channel (descriptor dump, heartbeat,
-`flip` printing, optional duration). It only touches `0e48`; audio is the
-separate `0e49` device.
+`tools/xqz_probe.py` (Python/pyusb, Linux/Android) and `tools/xqz_probe` (C#,
+Windows) implement the control channel (descriptor dump, heartbeat, `flip`
+printing, optional duration). They only touch `0e48`; audio is the separate
+`0e49` device. On Windows, bind `0e48` to WinUSB (e.g. with Zadig) first. The
+`Build xqz_probe` workflow publishes NativeAOT `xqz_probe.exe` artifacts for
+`win-x64` and `win-arm64`; to build locally run
+`dotnet publish tools/xqz_probe/XqzProbe.csproj -c Release -r win-x64` (.NET 10 SDK).
 
 ## Hardware verification
 
@@ -189,6 +193,8 @@ lsusb -d 054c:0e48 -v
 
 # Keep the DP link alive (sends show every 400 ms)
 sudo python3 -u tools/xqz_probe.py --duration 30
+# or on Windows, with the device bound to WinUSB:
+# xqz_probe.exe --duration 30
 
 # While that runs:
 cat /sys/class/drm/card*-DP-*/status
