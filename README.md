@@ -185,6 +185,15 @@ printing, optional duration). They only touch `0e48`; audio is the separate
 `win-x64` and `win-arm64`; to build locally run
 `dotnet publish tools/xqz_probe/XqzProbe.csproj -c Release -r win-x64` (.NET 10 SDK).
 
+`tools/xqz_probe_usbip.mjs` (Node.js 18+, no dependencies) does the same on
+Windows without Zadig: it is a user-space USB/IP client that talks to
+[usbipd-win](https://github.com/dorssel/usbipd-win) on TCP port 3240 (no WSL
+involved). Share the device once from an elevated prompt (`usbipd list`, then
+`usbipd bind --busid <BUSID>`); while the script runs usbipd-win captures the
+device, and releases it back to Windows on exit. `--list` shows the devices
+usbipd-win exports; `--host`/`--port`/`--busid` override discovery. Tests run
+against a mock usbipd server: `node --test tools/xqz_probe_usbip.test.mjs`.
+
 ## Hardware verification
 
 ```sh
@@ -195,6 +204,8 @@ lsusb -d 054c:0e48 -v
 sudo python3 -u tools/xqz_probe.py --duration 30
 # or on Windows, with the device bound to WinUSB:
 # xqz_probe.exe --duration 30
+# or on Windows via usbipd-win (after `usbipd bind --busid <BUSID>`):
+# node tools\xqz_probe_usbip.mjs --duration 30
 
 # While that runs:
 cat /sys/class/drm/card*-DP-*/status
