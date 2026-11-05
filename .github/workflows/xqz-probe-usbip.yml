@@ -1,0 +1,32 @@
+name: Test xqz_probe_usbip
+
+on:
+  push:
+    paths:
+      - tools/xqz_probe_usbip*.mjs
+      - .github/workflows/xqz-probe-usbip.yml
+  pull_request:
+    paths:
+      - tools/xqz_probe_usbip*.mjs
+      - .github/workflows/xqz-probe-usbip.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [18, 22]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Test
+        run: node --test tools/xqz_probe_usbip.test.mjs
